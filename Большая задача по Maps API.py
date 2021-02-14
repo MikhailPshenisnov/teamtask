@@ -37,6 +37,9 @@ class Example(QWidget):
         self.delete_point_button = QPushButton("Сброс", self)
         self.delete_point_button.setGeometry(490, 40, 100, 20)
         self.delete_point_button.clicked.connect(self.del_pt)
+        self.address = QLabel("", self)
+        self.address.setGeometry(10, 40, 470, 20)
+        self.address.setStyleSheet("* { background-color: rgba(225,225,225,1) }")
 
     def change_map_type(self):
         if self.is_map:
@@ -58,6 +61,7 @@ class Example(QWidget):
         self.type = self.types[0]
         self.z = 9
         self.map_file = "map.png"
+        self.address.setText("")
         self.map.setPixmap(QPixmap(""))
         address = self.search_line.text()
         geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey={self.API_KEY}&geocode={address}&format=json"
@@ -68,9 +72,11 @@ class Example(QWidget):
                 toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
                 if toponym:
                     coords = [float(x) for x in toponym["Point"]["pos"].split()]
+                    full_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
                     self.coords = coords.copy()
                     self.pt_coords = coords.copy()
                     self.is_map = True
+                    self.address.setText(" " + full_address)
                     self.map.setPixmap(self.get_map())
 
     def get_map(self):
@@ -92,6 +98,7 @@ class Example(QWidget):
 
     def del_pt(self):
         self.pt_coords = [None, None]
+        self.address.setText("")
         if self.is_map:
             self.map.setPixmap(self.get_map())
 
