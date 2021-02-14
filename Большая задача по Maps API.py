@@ -2,7 +2,7 @@ import os
 import sys
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLabel, QLineEdit, QCheckBox
 import requests
 
 
@@ -40,6 +40,8 @@ class Example(QWidget):
         self.address = QLabel("", self)
         self.address.setGeometry(10, 40, 470, 20)
         self.address.setStyleSheet("* { background-color: rgba(225,225,225,1) }")
+        self.tick = QCheckBox("", self)
+        self.tick.setGeometry(465, 41, 20, 20)
 
     def change_map_type(self):
         if self.is_map:
@@ -73,10 +75,13 @@ class Example(QWidget):
                 if toponym:
                     coords = [float(x) for x in toponym["Point"]["pos"].split()]
                     full_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
+                    postal_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
                     self.coords = coords.copy()
                     self.pt_coords = coords.copy()
                     self.is_map = True
                     self.address.setText(" " + full_address)
+                    if self.tick.isChecked():
+                        self.address.setText(self.address.text() + " " + postal_code)
                     self.map.setPixmap(self.get_map())
 
     def get_map(self):
@@ -99,6 +104,7 @@ class Example(QWidget):
     def del_pt(self):
         self.pt_coords = [None, None]
         self.address.setText("")
+        self.tick.setChecked(False)
         if self.is_map:
             self.map.setPixmap(self.get_map())
 
