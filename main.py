@@ -66,7 +66,6 @@ class Example(QWidget):
                 self.z -= 1
         elif event.key() == Qt.Key_W:
             self.coords[1] += 0.001
-            print(self.coords)
         elif event.key() == Qt.Key_S:
             self.coords[1] -= 0.001
         elif event.key() == Qt.Key_A:
