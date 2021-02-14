@@ -12,6 +12,8 @@ class Example(QWidget):
         self.API_KEY = "40d1649f-0493-4b70-98ba-98533de7710b"
         self.coords = [None, None]
         self.pt_coords = [None, None]
+        self.pt_address = ""
+        self.pt_postal_code = ""
         self.z = 9
         self.map_file = "map.png"
         self.types = ["map", "sat", "sat,skl"]
@@ -42,6 +44,7 @@ class Example(QWidget):
         self.address.setStyleSheet("* { background-color: rgba(225,225,225,1) }")
         self.tick = QCheckBox("", self)
         self.tick.setGeometry(465, 41, 20, 20)
+        self.tick.stateChanged.connect(self.change_text)
 
     def change_map_type(self):
         if self.is_map:
@@ -61,6 +64,8 @@ class Example(QWidget):
         self.pt_coords = [None, None]
         self.is_map = False
         self.type = self.types[0]
+        self.pt_address = ""
+        self.pt_postal_code = ""
         self.z = 9
         self.map_file = "map.png"
         self.address.setText("")
@@ -74,14 +79,14 @@ class Example(QWidget):
                 toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
                 if toponym:
                     coords = [float(x) for x in toponym["Point"]["pos"].split()]
-                    full_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
-                    postal_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                    self.pt_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
+                    self.pt_postal_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
                     self.coords = coords.copy()
                     self.pt_coords = coords.copy()
                     self.is_map = True
-                    self.address.setText(" " + full_address)
+                    self.address.setText(" " + self.pt_address)
                     if self.tick.isChecked():
-                        self.address.setText(self.address.text() + " " + postal_code)
+                        self.address.setText(self.address.text() + " " + self.pt_postal_code)
                     self.map.setPixmap(self.get_map())
 
     def get_map(self):
@@ -102,11 +107,18 @@ class Example(QWidget):
         return QPixmap(pixmap)
 
     def del_pt(self):
+        self.tick.setChecked(False)
         self.pt_coords = [None, None]
         self.address.setText("")
-        self.tick.setChecked(False)
         if self.is_map:
             self.map.setPixmap(self.get_map())
+
+    def change_text(self):
+        if self.is_map:
+            if self.tick.isChecked():
+                self.address.setText(" " + self.pt_address + " " + self.pt_postal_code)
+            else:
+                self.address.setText(" " + self.pt_address)
 
     def keyPressEvent(self, event):
         if self.is_map:
