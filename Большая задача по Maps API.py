@@ -34,6 +34,9 @@ class Example(QWidget):
         self.search_button = QPushButton("Найти", self)
         self.search_button.setGeometry(490, 10, 100, 20)
         self.search_button.clicked.connect(self.get_coords)
+        self.delete_point_button = QPushButton("Сброс", self)
+        self.delete_point_button.setGeometry(490, 40, 100, 20)
+        self.delete_point_button.clicked.connect(self.del_pt)
 
     def change_map_type(self):
         if self.is_map:
@@ -72,7 +75,9 @@ class Example(QWidget):
 
     def get_map(self):
         map_request = f"https://static-maps.yandex.ru/1.x/?ll={f'{self.coords[0]},{self.coords[1]}'}" \
-                      f"&l={self.type}&z={self.z}&pt={self.pt_coords[0]},{self.pt_coords[1]},pm2rdm"
+                      f"&l={self.type}&z={self.z}"
+        if self.pt_coords[0]:
+            map_request += f"&pt={self.pt_coords[0]},{self.pt_coords[1]},pm2rdm"
         response = requests.get(map_request)
         if not response:
             print("Ошибка выполнения запроса:")
@@ -84,6 +89,11 @@ class Example(QWidget):
         pixmap = QPixmap(self.map_file)
         os.remove(self.map_file)
         return QPixmap(pixmap)
+
+    def del_pt(self):
+        self.pt_coords = [None, None]
+        if self.is_map:
+            self.map.setPixmap(self.get_map())
 
     def keyPressEvent(self, event):
         if self.is_map:
