@@ -80,7 +80,10 @@ class Example(QWidget):
                 if toponym:
                     coords = [float(x) for x in toponym["Point"]["pos"].split()]
                     self.pt_address = toponym["metaDataProperty"]["GeocoderMetaData"]["text"]
-                    self.pt_postal_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                    try:
+                        self.pt_postal_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
+                    except Exception:
+                        self.pt_postal_code = "(Ошибка: Индекс не найден)"
                     self.coords = coords.copy()
                     self.pt_coords = coords.copy()
                     self.is_map = True
